@@ -41,6 +41,8 @@ data class Song(
     val bitDepth: Int?,
     val sampleRate: Int?,
     val channelCount: Int?
+
+    // here
 ) : Parcelable {
     val type: Type
         get() {

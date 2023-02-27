@@ -103,7 +103,7 @@ constructor(
                     name = name,
                     mediaProviderType = MediaProviderType.Shuttle,
                     songs = songs,
-                    externalId = null
+                    externalId = null   // where to export new playlists?
                 )
 
             if (playlistData != null) {
