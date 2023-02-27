@@ -115,7 +115,7 @@ class LocalPlaylistRepository(
         playlist: Playlist,
         songs: List<Song>
     ) {
-        return playlistSongJoinDao.insert(
+        playlistSongJoinDao.insert(
             songs.mapIndexed { i, song ->
                 PlaylistSongJoin(
                     playlistId = playlist.id,
@@ -124,26 +124,29 @@ class LocalPlaylistRepository(
                 )
             }
         )
+        updateM3uFile(playlist)
     }
 
     override suspend fun removeFromPlaylist(
         playlist: Playlist,
         playlistSongs: List<PlaylistSong>
     ) {
-        return playlistSongJoinDao.delete(
+        playlistSongJoinDao.delete(
             playlistId = playlist.id,
             playlistSongIds = playlistSongs.map { playlistSong -> playlistSong.id }.toTypedArray()
         )
+        updateM3uFile(playlist)
     }
 
     override suspend fun removeSongsFromPlaylist(
         playlist: Playlist,
         songs: List<Song>
     ) {
-        return playlistSongJoinDao.deleteSongs(
+        playlistSongJoinDao.deleteSongs(
             playlistId = playlist.id,
             songIds = songs.map { it.id }.toTypedArray()
         )
+        updateM3uFile(playlist)
     }
 
     override fun getSongsForPlaylist(playlist: Playlist): Flow<List<PlaylistSong>> {
@@ -162,7 +165,8 @@ class LocalPlaylistRepository(
     }
 
     override suspend fun clearPlaylist(playlist: Playlist) {
-        return playlistDataDao.clear(playlist.id)
+        playlistDataDao.clear(playlist.id)
+        updateM3uFile(playlist)
     }
 
     override suspend fun renamePlaylist(
@@ -236,6 +240,7 @@ class LocalPlaylistRepository(
                 }
             }
         )
+        updateM3uFile(playlist)
     }
 
     override suspend fun updatePlaylistMediaProviderType(
