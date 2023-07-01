@@ -54,14 +54,14 @@ constructor(
         updateQueuePosition(queueManager.getCurrentPosition())
         updateCurrentSong(queueManager.getCurrentItem()?.song)
         updatePlaybackState(playbackManager.playbackState())
-        updateFavorite()
+        updateRating()
     }
 
     override fun unbindView() {
         playbackWatcher.removeCallback(this)
         queueWatcher.removeCallback(this)
 
-        updateFavorite()
+        updateRating()
 
         super.unbindView()
     }
@@ -78,18 +78,17 @@ constructor(
         }
     }
 
-    private fun updateFavorite() {
+    private fun updateRating() {
+        Timber.w("updateRating...")
         favoriteUpdater?.cancel()
         val job =
             launch {
-                val isFavorite =
-                    playlistRepository
-                        .getSongsForPlaylist(playlistRepository.getFavoritesPlaylist())
-                        .firstOrNull()
-                        .orEmpty()
-                        .map { it.song }
-                        .contains(queueManager.getCurrentItem()?.song)
-                this@PlaybackPresenter.view?.setIsFavorite(isFavorite)
+                queueManager.getCurrentItem()?.let { currentItem ->
+                    val rating = playlistRepository
+                        .getRatingForSong(currentItem.song.id) ?: 0
+                    Timber.w("rating is ${rating}")
+                    this@PlaybackPresenter.view?.setRating(rating)
+                }
             }
 
         favoriteUpdater = job
@@ -178,15 +177,21 @@ constructor(
         view?.presentSleepTimer()
     }
 
-    override fun setFavorite(isFavorite: Boolean) {
+    fun setRating(new_rating: Int) {
         launch {
             queueManager.getCurrentItem()?.song?.let { song ->
-                val favoritesPlaylist = playlistRepository.getFavoritesPlaylist()
-                if (isFavorite) {
-                    playlistRepository.addToPlaylist(favoritesPlaylist, listOf(song))
-                } else {
-                    playlistRepository.removeSongsFromPlaylist(favoritesPlaylist, listOf(song))
+                // Remove from the current rating
+                playlistRepository.getRatingPlaylistForSong(song.id)?.let {
+                    Timber.d("Removing song ${song.name} (id=${song.id}) from playlist ${it.name}")
+                    playlistRepository.removeSongsFromPlaylist(it, listOf(song))
                 }
+
+                // Add to the newer rating
+                playlistRepository.getRatingPlaylist(new_rating)?.let {
+                    Timber.d("Adding song ${song.name} (id=${song.id}) to playlist ${it.name}")
+                    playlistRepository.addToPlaylist(it, listOf(song))
+                }?: Timber.w("Playlist for ratings ${new_rating} does not exist.")
+
             }
         }
     }
@@ -282,7 +287,7 @@ constructor(
     ) {
         updateCurrentSong(queueManager.getCurrentItem()?.song)
         updateQueuePosition(newPosition)
-        updateFavorite()
+        updateRating()
     }
 
     override fun onShuffleChanged(shuffleMode: QueueManager.ShuffleMode) {

@@ -31,7 +31,7 @@ interface PlaybackContract {
             duration: Int
         )
 
-        fun setIsFavorite(isFavorite: Boolean)
+        fun setRating(new_rating: Int)
 
         fun presentSleepTimer()
 
@@ -76,7 +76,7 @@ interface PlaybackContract {
 
         fun sleepTimerClicked()
 
-        fun setFavorite(isFavorite: Boolean)
+        //fun setFavorite(isFavorite: Boolean)
 
         fun goToAlbum()
 

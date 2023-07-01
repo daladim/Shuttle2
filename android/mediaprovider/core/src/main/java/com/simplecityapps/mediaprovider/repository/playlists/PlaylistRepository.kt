@@ -15,6 +15,10 @@ interface PlaylistRepository {
 
     suspend fun getFavoritesPlaylist(): Playlist
 
+    suspend fun getRatingPlaylist(rating: Int): Playlist?
+    suspend fun getRatingPlaylistForSong(songId: Long): Playlist?
+    suspend fun getRatingForSong(songId: Long): Int?
+
     suspend fun createPlaylist(
         name: String,
         mediaProviderType: MediaProviderType,
