@@ -49,6 +49,7 @@ import com.simplecityapps.shuttle.ui.screens.queue.QueueFragment
 import com.simplecityapps.shuttle.ui.screens.sleeptimer.SleepTimerDialogFragment
 import com.simplecityapps.shuttle.ui.screens.songinfo.SongInfoDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 import javax.inject.Inject
 import kotlin.math.abs
 
@@ -220,10 +221,13 @@ class PlaybackFragment :
                 else -> false
             }
         }
+
+        // Favorite button
         favoriteButton = toolbar.menu.findItem(R.id.favorite).actionView!!.findViewById(R.id.favoritesButton)
         favoriteButton.setOnClickListener {
-            favoriteButton.toggle()
-            presenter.setFavorite(favoriteButton.isChecked)
+            Timber.w("onClickListener")
+            favoriteButton.clicked()
+            presenter.setRating(favoriteButton.rating())
         }
 
         CastButtonFactory.setUpMediaRouteButton(requireContext(), toolbar.menu, R.id.media_route_menu_item)
@@ -347,8 +351,8 @@ class PlaybackFragment :
         SleepTimerDialogFragment().show(childFragmentManager)
     }
 
-    override fun setIsFavorite(isFavorite: Boolean) {
-        favoriteButton.isChecked = isFavorite
+    override fun setRating(rating: Int) {
+        favoriteButton.setRating(rating)
     }
 
     override fun goToAlbum(album: com.simplecityapps.shuttle.model.Album) {

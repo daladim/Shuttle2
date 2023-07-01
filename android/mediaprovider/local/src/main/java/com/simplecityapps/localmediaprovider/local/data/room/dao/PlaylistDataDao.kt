@@ -56,6 +56,15 @@ abstract class PlaylistDataDao {
         return getPlaylistData(playlistId).toPlaylist()
     }
 
+    @Query(
+        """
+            SELECT playlistId
+            FROM playlist_song_join 
+            WHERE songId = :songId
+            """
+    )
+    abstract suspend fun getPlaylistIdsForSong(songId: Long): List<Long>
+
     @Query("DELETE FROM playlist_song_join WHERE playlistId = :playlistId")
     abstract suspend fun clear(playlistId: Long)
 

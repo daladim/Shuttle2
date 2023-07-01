@@ -82,6 +82,46 @@ class LocalPlaylistRepository(
         }
     }
 
+    override suspend fun getRatingPlaylist(rating: Int): Playlist? {
+        // TODO: localize?
+        val favoritesName = "Favorites - $rating stars"
+        return withContext(Dispatchers.IO) {
+            playlistsRelay
+                .filterNotNull()
+                .firstOrNull()
+                ?.firstOrNull { it.name == favoritesName }
+        }
+    }
+
+    override suspend fun getRatingPlaylistForSong(songId: Long): Playlist? {
+        playlistDataDao.getPlaylistIdsForSong(songId).forEach {
+            val list = playlistDataDao.getPlaylist(it)
+            if (list.name.startsWith("Favorites - ") && list.name.endsWith(" stars")) {
+                return list
+            }
+        }
+
+        return null
+    }
+
+    override suspend fun getRatingForSong(songId: Long): Int? {
+        Timber.i("getRatingForSong...")
+        getRatingPlaylistForSong(songId)?.let{
+            Timber.i("found PL=${it.name}...")
+            with(it.name) {
+                val r = when {
+                    equals("Favorites - 1 stars") -> return 1
+                    equals("Favorites - 2 stars") -> return 2
+                    equals("Favorites - 3 stars") -> return 3
+                    equals("Favorites - 4 stars") -> return 4
+                    equals("Favorites - 5 stars") -> return 5
+                    else -> return null
+                }
+            }
+        }
+        return null
+    }
+
     override suspend fun createPlaylist(
         name: String,
         mediaProviderType: MediaProviderType,
