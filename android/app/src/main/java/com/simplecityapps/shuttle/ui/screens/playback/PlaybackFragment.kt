@@ -225,8 +225,8 @@ class PlaybackFragment :
         // Favorite button
         favoriteButton = toolbar.menu.findItem(R.id.favorite).actionView!!.findViewById(R.id.favoritesButton)
         favoriteButton.setOnClickListener {
-            Timber.w("onClickListener")
             favoriteButton.clicked()
+            Timber.w("onClickListener. Calling setRating(${favoriteButton.rating()})")
             presenter.setRating(favoriteButton.rating())
         }
 

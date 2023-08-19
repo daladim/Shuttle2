@@ -84,7 +84,7 @@ class LocalPlaylistRepository(
 
     override suspend fun getRatingPlaylist(rating: Int): Playlist? {
         // TODO: localize?
-        val favoritesName = "Favorites - $rating stars"
+        val favoritesName = "Favourites - $rating stars"
         return withContext(Dispatchers.IO) {
             playlistsRelay
                 .filterNotNull()
@@ -94,13 +94,19 @@ class LocalPlaylistRepository(
     }
 
     override suspend fun getRatingPlaylistForSong(songId: Long): Playlist? {
+        Timber.w("getRatingPlaylistForSong...")
+        val ret = playlistDataDao.getPlaylistIdsForSong(songId)
+        Timber.w("  this song is in playlists ${ret}")
         playlistDataDao.getPlaylistIdsForSong(songId).forEach {
             val list = playlistDataDao.getPlaylist(it)
-            if (list.name.startsWith("Favorites - ") && list.name.endsWith(" stars")) {
+            Timber.i("Considering playlist for song: ${list.name}")
+            // TODO: de-duplicate this code?
+            if (list.name.startsWith("Favourites - ") && list.name.endsWith(" stars")) {
                 return list
             }
         }
 
+        Timber.w("End of getRatingPlaylistForSong")
         return null
     }
 
@@ -110,15 +116,17 @@ class LocalPlaylistRepository(
             Timber.i("found PL=${it.name}...")
             with(it.name) {
                 val r = when {
-                    equals("Favorites - 1 stars") -> return 1
-                    equals("Favorites - 2 stars") -> return 2
-                    equals("Favorites - 3 stars") -> return 3
-                    equals("Favorites - 4 stars") -> return 4
-                    equals("Favorites - 5 stars") -> return 5
+                    equals("Favourites - 1 stars") -> return 1
+                    equals("Favourites - 2 stars") -> return 2
+                    equals("Favourites - 3 stars") -> return 3
+                    equals("Favourites - 4 stars") -> return 4
+                    equals("Favourites - 5 stars") -> return 5
                     else -> return null
                 }
             }
         }
+
+        Timber.w("getRatingPlaylistForSong failed!")
         return null
     }
 
