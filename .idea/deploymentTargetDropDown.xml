@@ -5,6 +5,9 @@
       <entry key="android.app">
         <State />
       </entry>
+      <entry key="androidApp.main.app">
+        <State />
+      </entry>
     </value>
   </component>
 </project>
