@@ -151,8 +151,10 @@ class LocalPlaylistRepository(
         }
 
     override suspend fun deletePlaylist(playlist: Playlist) = playlistDataDao.delete(playlist.id)
+    // TODO: then what?
 
     override suspend fun deleteAll(mediaProviderType: MediaProviderType) = playlistDataDao.deleteAll(mediaProviderType)
+    // TODO: then what?
 
     override suspend fun clearPlaylist(playlist: Playlist) {
         playlistDataDao.clear(playlist.id)
@@ -170,6 +172,7 @@ class LocalPlaylistRepository(
             mediaProviderType = playlist.mediaProvider,
             sortOrder = playlist.sortOrder
         )
+        // TODO: then what?
     )
 
     override suspend fun updateM3uFile(playlist: Playlist) {
@@ -261,3 +264,5 @@ class LocalPlaylistRepository(
         )
     }
 }
+
+// Note: pretty sure new playlists (added from the app) are never exported
